@@ -1,0 +1,50 @@
+type Link {
+    id: String!
+    url: String!
+    description: String!
+    postedBy: User
+    votes: [Vote!]!
+}
+
+type User {
+    id: ID!
+    name: String!
+    email: String
+    password: String
+    votes: [Vote!]!
+}
+
+input AuthData {
+  email: String!
+  password: String!
+}
+
+type SigninPayload {
+  token: String
+  user: User
+}
+
+type Vote {
+    id: ID!
+    createdAt: Time!
+    user: User!
+    link: Link!
+}
+
+scalar Time
+
+type Query {
+    allLinks: [Link]
+}
+
+type Mutation {
+    createUser(name: String!, authProvider: AuthData!): User
+    createLink(url: String!, description: String!): Link
+    signinUser(auth: AuthData): SigninPayload
+    createVote(linkId: ID, userId: ID): Vote
+}
+
+schema {
+    query: Query
+    mutation: Mutation
+}
