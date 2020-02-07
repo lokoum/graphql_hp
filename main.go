@@ -3,10 +3,11 @@ package main
 import (
 	"log"
 	"net/http"
+	"fmt"
 
-	_ "github.com/howtographql/graphql-go/db"
+	_ "graphql_hp/db"
 
-	"github.com/howtographql/graphql-go/resolvers"
+	"graphql_hp/resolvers"
 	"github.com/neelance/graphql-go"
 	"github.com/neelance/graphql-go/relay"
 	"io/ioutil"
@@ -15,6 +16,32 @@ import (
 )
 
 var schema *graphql.Schema
+
+func formatRequest(r *http.Request) string {
+	// Create return string
+	var request []string
+	// Add the request string
+	url := fmt.Sprintf("%v %v %v", r.Method, r.URL, r.Proto)
+	request = append(request, url)
+	// Add the host
+	request = append(request, fmt.Sprintf("Host: %v", r.Host))
+	// Loop through headers
+	for name, headers := range r.Header {
+	  name = strings.ToLower(name)
+	  for _, h := range headers {
+		request = append(request, fmt.Sprintf("%v: %v", name, h))
+	  }
+	}
+	
+	// If this is a POST, add post data
+	if r.Method == "POST" {
+	   r.ParseForm()
+	   request = append(request, "\n")
+	   request = append(request, r.Form.Encode())
+	} 
+	 // Return the request as a string
+	 return strings.Join(request, "\n")
+   }
 
 func init() {
 	schemaFile, err := ioutil.ReadFile("schema.graphqls")
@@ -31,6 +58,8 @@ func main() {
 	}))
 
 	http.Handle("/query", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		//log.Println(r.)
+		formatRequest(r)
 		next := &relay.Handler{Schema: schema}
 		authorization := r.Header.Get("Authorization")
 		token := strings.Replace(authorization, "Bearer ", "", 1)

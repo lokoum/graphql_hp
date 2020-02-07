@@ -1,7 +1,7 @@
 package resolvers
 
 import (
-	"github.com/howtographql/graphql-go/db"
+	"graphql_hp/db"
 	"github.com/neelance/graphql-go"
 	"context"
 	"log"
